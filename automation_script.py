@@ -10,7 +10,7 @@ csv_filename = "issues.csv"
 
 def fetch_and_export_issues(domain,api_token, project_key, csv_filename):
     url = f"https://{domain}.atlassian.net/rest/api/3/search"
-    auth = HTTPBasicAuth("rparashar@parkar.digital", "ATATT3xFfGF01NerQQxDJGsA1ozzdMUoeOkHYQcYhnTdn9VdgWSmzGHRE-p7sD70ReZEmPLxgVM02EErLsnAf74pPGYurnWePRjBOwoz8OR77D9jN4tgfTR-wSQCMNxK_CKpSUfmuU97b4hd0o6ZibfGDWIEMlB8VonjxYRfsjF2PvU0T0phHEQ=50709B6A")
+    auth = HTTPBasicAuth("rparashar@parkar.digital", "ATATT3xFfGF0RQsxJj_EjNLJv53p-Xmosajn93nqecOy3HNfIaoZc1YWFtYALaCtzH_7v0N7b4CAQA5ArcPDRdf224jT3QUSt8_6GhdJ0f_cwrEHG3W5wDQSlyTa5bjQd709CGKaCZ_oL5jEz-OjkQI3vvajmhPyLO5Ci9qX4IAbQV0qWjnsyy0=0F1DECD2")
     headers = {"Accept": "application/json"}
     query = {'jql': f'project = {project_key}'}
     result = []
@@ -147,3 +147,4 @@ def import_issues_into_zephyr(api_token, project_key):
 # api_token = "your_api_token_here"
 # project_key = "your_project_key_here"
 import_issues_into_zephyr(api_token, project_key)
+
