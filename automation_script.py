@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template
 import requests
 from requests.auth import HTTPBasicAuth
 import json
@@ -129,11 +129,10 @@ def import_issues():
    print(api_token)
    print(project_key)
    import_issues_into_zephyr(api_token, project_key)
-   return jsonify({"message": "Issues imported and test steps uploaded successfully"}), 200
+   return render_template('index.html')
+#    return jsonify({"message": "Issues imported and test steps uploaded successfully"}), 200
 if __name__ == '__main__':
    app.run(debug=True)
-
-
 
 
 
