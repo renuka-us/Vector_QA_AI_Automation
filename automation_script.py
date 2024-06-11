@@ -147,4 +147,3 @@ def import_issues_into_zephyr(api_token, project_key):
 # api_token = "your_api_token_here"
 # project_key = "your_project_key_here"
 import_issues_into_zephyr(api_token, project_key)
-
