@@ -131,8 +131,8 @@ def import_issues():
    import_issues_into_zephyr(api_token, project_key)
    return render_template('index.html')
 #    return jsonify({"message": "Issues imported and test steps uploaded successfully"}), 200
-if __name__ == '__main__':
-   app.run(debug=False,host='0.0.0.0')
+# if __name__ == '__main__':
+#    app.run(debug=False,host='0.0.0.0')
 
 
 
