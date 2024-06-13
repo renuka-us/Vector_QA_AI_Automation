@@ -8,6 +8,31 @@ domain = "parkar"
 api_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0Ijp7ImJhc2VVcmwiOiJodHRwczovL3Bhcmthci5hdGxhc3NpYW4ubmV0IiwidXNlciI6eyJhY2NvdW50SWQiOiI3MTIwMjA6N2QxNGQ3YTMtODlkNC00Mzk3LTliODgtMDgxNjdkOTdjNGNkIn19LCJpc3MiOiJjb20ua2Fub2FoLnRlc3QtbWFuYWdlciIsInN1YiI6Ijc0ZTdlNTU4LWVkMjEtMzU5MC04YTFhLTc1ZWUxMTliNzA3OCIsImV4cCI6MTc0ODY3ODUzNiwiaWF0IjoxNzE3MTQyNTM2fQ.xxiq_15ljyqkCS70vtzRUnHJfHlAm65Cw5cqC2Lcl60"
 project_key = "AITEST"
 csv_filename = "issues.csv"
+# test_case_key=None
+
+def fetch_existing_test_cases(api_token):
+    url = "https://api.zephyrscale.smartbear.com/v2/testcases?maxResults=1000"
+    headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()['values']
+    else:
+        print("Failed to fetch existing test cases")
+        return []
+
+def upload_test_steps(api_token, project_key, test_case_key, steps_data):
+   url = f"https://api.zephyrscale.smartbear.com/v2/testcases/{test_case_key}/teststeps"
+   headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
+   payload = {
+       "mode": "OVERWRITE",
+       "items": steps_data
+   }
+   print(payload["items"])
+   response = requests.post(url, headers=headers, json=payload)
+   print(response)
+   if response.status_code == 201:
+       print(f"Successfully uploaded steps for test case '{test_case_key}'")
+
 def fetch_and_export_issues(domain, api_token, project_key, csv_filename):
    url = f"https://{domain}.atlassian.net/rest/api/3/search"
    auth = HTTPBasicAuth("rparashar@parkar.digital", "ATATT3xFfGF0RQsxJj_EjNLJv53p-Xmosajn93nqecOy3HNfIaoZc1YWFtYALaCtzH_7v0N7b4CAQA5ArcPDRdf224jT3QUSt8_6GhdJ0f_cwrEHG3W5wDQSlyTa5bjQd709CGKaCZ_oL5jEz-OjkQI3vvajmhPyLO5Ci9qX4IAbQV0qWjnsyy0=0F1DECD2")
@@ -75,54 +100,67 @@ def fetch_and_export_issues(domain, api_token, project_key, csv_filename):
        print(f"Unexpected key in response: {e}")
    except Exception as e:
        print(f"An error occurred: {e}")
-def upload_test_steps(api_token, project_key, test_case_key, steps_data):
-   url = f"https://api.zephyrscale.smartbear.com/v2/testcases/{test_case_key}/teststeps"
-   headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
-   payload = {
-       "mode": "OVERWRITE",
-       "items": steps_data
-   }
-   print(payload["items"])
-   response = requests.post(url, headers=headers, json=payload)
-   print(response)
-   if response.status_code == 201:
-       print(f"Successfully uploaded steps for test case '{test_case_key}'")
+
+
+
+
+
+
 def import_issues_into_zephyr(api_token, project_key):
-   url = f"https://api.zephyrscale.smartbear.com/v2/testcases"
-   headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
-   issues_json = fetch_and_export_issues(domain, api_token, project_key, csv_filename)
-   print("inside")
-   issues = json.loads(issues_json)
-   print(issues)
-   steps_dict = {}
-   for issue in issues:
-       if issue['Issue Key']:
-           payload = {
-               "ID": issue['Issue Key'],
-               "name": issue['Summary'],
-               "Test Script (Steps) - Step": issue['Test Steps'],
-               "Test Script (Steps) - Expected Result": issue['Expected Results'],
-               "type": "TEST_CASE",
-               "projectKey": project_key
-           }
-           print(payload)
-           response = requests.post(url, headers=headers, json=payload)
-           print(response)
-           test_case_key = response.json().get('key')
-           print("Test case generated successfully for the Test Case Key : ",test_case_key)
-       if test_case_key not in steps_dict:
+    url = "https://api.zephyrscale.smartbear.com/v2/testcases"
+    headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
+    issues_json = fetch_and_export_issues(domain, api_token, project_key, csv_filename)
+    issues = json.loads(issues_json)
+    existing_test_cases = fetch_existing_test_cases(api_token)
+    steps_dict = {}
+
+    for i in range(len(issues)):
+        print("For i : ", i)
+        issue = issues[i]
+        if issue['Issue Key']:
+            # Check if the test case already exists
+            existing_test_case = next((tc for tc in existing_test_cases if tc['name'] == issue['Summary']), None)
+            if existing_test_case:
+                print(f"Test case '{issue['Summary']}' already exists. Skipping.")
+                # Skip uploading test case and its steps
+                while i + 1 < len(issues) and issues[i + 1].get('Issue Key') is None:
+                    i += 1
+                    print("while i : ", i)
+                continue
+
+            # Upload test case and its steps
+            payload = {
+                "ID": issue['Issue Key'],
+                "name": issue['Summary'],
+                "Test Script (Steps) - Step": issue['Test Steps'],
+                "Test Script (Steps) - Expected Result": issue['Expected Results'],
+                "type": "TEST_CASE",
+                "projectKey": project_key
+            }
+            print(payload)
+            response = requests.post(url, headers=headers, json=payload)
+            print(response)
+            test_case_key = response.json().get('key')
+            print("Test case generated successfully for the Test Case Key : ", test_case_key)
+        if test_case_key not in steps_dict:
            steps_dict[test_case_key] = []
-       steps_data = {
-           "inline": {
-               "description": issue['Test Steps'],
-               "testData": "",
-               "expectedResult": issue['Expected Results'],
-               "customFields": {}
-           }
-       }
-       steps_dict[test_case_key].append(steps_data)
-   for test_case_key, steps_data in steps_dict.items():
-       upload_test_steps(api_token, project_key, test_case_key, steps_data)
+        steps_data = {
+                    "inline": {
+                        "description": issues[i]['Test Steps'],
+                        "testData": "",
+                        "expectedResult": issues[i]['Expected Results'],
+                        "customFields": {}
+                    }
+                }
+        steps_dict[test_case_key].append(steps_data)
+ 
+    # Move the upload_test_steps function call outside the loop
+    for test_case_key, steps_data in steps_dict.items():
+        upload_test_steps(api_token, project_key, test_case_key, steps_data)
+
+
+
+
 @app.route('/', methods=['GET'])
 def import_issues():
 #    project_key = request.json.get('project_key')
@@ -131,7 +169,6 @@ def import_issues():
    import_issues_into_zephyr(api_token, project_key)
    return render_template('index.html')
 #    return jsonify({"message": "Issues imported and test steps uploaded successfully"}), 200
-
-
-
+if __name__ == '__main__':
+   app.run(debug=True)
 
