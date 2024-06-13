@@ -8,7 +8,7 @@ domain = "parkar"
 api_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjb250ZXh0Ijp7ImJhc2VVcmwiOiJodHRwczovL3Bhcmthci5hdGxhc3NpYW4ubmV0IiwidXNlciI6eyJhY2NvdW50SWQiOiI3MTIwMjA6N2QxNGQ3YTMtODlkNC00Mzk3LTliODgtMDgxNjdkOTdjNGNkIn19LCJpc3MiOiJjb20ua2Fub2FoLnRlc3QtbWFuYWdlciIsInN1YiI6Ijc0ZTdlNTU4LWVkMjEtMzU5MC04YTFhLTc1ZWUxMTliNzA3OCIsImV4cCI6MTc0ODY3ODUzNiwiaWF0IjoxNzE3MTQyNTM2fQ.xxiq_15ljyqkCS70vtzRUnHJfHlAm65Cw5cqC2Lcl60"
 project_key = "AITEST"
 csv_filename = "issues.csv"
-# test_case_key=None
+
 
 def fetch_existing_test_cases(api_token):
     url = "https://api.zephyrscale.smartbear.com/v2/testcases?maxResults=1000"
@@ -107,6 +107,7 @@ def fetch_and_export_issues(domain, api_token, project_key, csv_filename):
 
 
 def import_issues_into_zephyr(api_token, project_key):
+    test_case_key= str()
     url = "https://api.zephyrscale.smartbear.com/v2/testcases"
     headers = {"Accept": "application/json", "Content-Type": "application/json", 'Authorization': f'Bearer {api_token}'}
     issues_json = fetch_and_export_issues(domain, api_token, project_key, csv_filename)
