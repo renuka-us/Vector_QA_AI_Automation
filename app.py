@@ -123,7 +123,7 @@ def import_issues_into_zephyr(api_token, project_key):
        steps_dict[test_case_key].append(steps_data)
    for test_case_key, steps_data in steps_dict.items():
        upload_test_steps(api_token, project_key, test_case_key, steps_data)
-@app.route('/', methods=['GET'])
+@app.route('/import_testcases', methods=['GET'])
 def import_issues():
 #    project_key = request.json.get('project_key')
    print(api_token)
