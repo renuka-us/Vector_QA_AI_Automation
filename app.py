@@ -156,7 +156,7 @@ def import_issues_into_zephyr(api_token, project_key):
     for test_case_key, steps_data in steps_dict.items():
         upload_test_steps(api_token, project_key, test_case_key, steps_data)
 
-@app.route('/upload_testcases', methods=['GET'])
+@app.route('/upload_testcases', methods=['POST'])
 def upload_testcases():
     import_issues_into_zephyr(api_token, project_key)
     return jsonify({"message": "Test cases and test steps uploaded successfully"}), 200
