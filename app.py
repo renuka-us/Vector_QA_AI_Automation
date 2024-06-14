@@ -102,10 +102,6 @@ def fetch_and_export_issues(domain, api_token, project_key, csv_filename):
        print(f"An error occurred: {e}")
 
 
-
-
-
-
 def import_issues_into_zephyr(api_token, project_key):
     test_case_key= str()
     url = "https://api.zephyrscale.smartbear.com/v2/testcases"
@@ -142,6 +138,7 @@ def import_issues_into_zephyr(api_token, project_key):
             response = requests.post(url, headers=headers, json=payload)
             print(response)
             test_case_key = response.json().get('key')
+            print(type(test_case_key))
             print("Test case generated successfully for the Test Case Key : ", test_case_key)
         if test_case_key not in steps_dict:
            steps_dict[test_case_key] = []
@@ -159,15 +156,18 @@ def import_issues_into_zephyr(api_token, project_key):
     for test_case_key, steps_data in steps_dict.items():
         upload_test_steps(api_token, project_key, test_case_key, steps_data)
 
+@app.route('/upload_testcases', methods=['GET'])
+def upload_testcases():
+    import_issues_into_zephyr(api_token, project_key)
+    return jsonify({"message": "Test cases and test steps uploaded successfully"}), 200
 
 
 
 @app.route('/', methods=['GET'])
 def import_issues():
-#    project_key = request.json.get('project_key')
    print(api_token)
    print(project_key)
-   import_issues_into_zephyr(api_token, project_key)
+#    import_issues_into_zephyr(api_token, project_key)
    return render_template('index.html')
 #    return jsonify({"message": "Issues imported and test steps uploaded successfully"}), 200
 if __name__ == '__main__':
